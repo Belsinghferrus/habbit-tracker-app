@@ -13,6 +13,7 @@ class ThemeProvider extends ChangeNotifier {
   //set theme
   set themeData(ThemeData themeData) {
     _themeData = themeData;
+    notifyListeners();
   }
 
   //toggle theme
