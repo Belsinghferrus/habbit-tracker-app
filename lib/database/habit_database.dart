@@ -42,6 +42,8 @@ class HabitDatabase extends ChangeNotifier {
 
   /*
 
+---------------------------------------------------------------------
+
   C R U D X O P E R A T I O N S
 
   */
@@ -76,30 +78,30 @@ class HabitDatabase extends ChangeNotifier {
     final habit = await isar.habits.get(id);
     //update completion status
     if (habit != null) {
-      await isar.writeTxn(() async {
-        //if habit is completed add current date to completion list
-        if (isCompleted && !habit.completedDays.contains(DateTime.now())) {
-          //today
-          final today = DateTime.now();
-          //add the current date if it's not already in the list
-          habit.completedDays.add(
-            DateTime(
-              today.year,
-              today.month,
-              today.day,
-            ),
-          );
-        }
-        //if habit is not completed => remove the current date from the list
-        else {
-          habit.completedDays.removeWhere((date) =>
-              date.year == DateTime.now().year &&
-              date.month == DateTime.now().month &&
-              date.day == DateTime.now().day);
-        }
-        //save the updated habits back to the db
-        await isar.habits.put(habit);
-      });
+      await isar.writeTxn(
+        () async {
+          //if habit is completed add current date to completion list
+          if (isCompleted && !habit.completedDays.contains(DateTime.now())) {
+            //today
+            final today = DateTime.now();
+            //add the current date if it's not already in the list
+            habit.completedDays.add(
+              DateTime(
+                today.year,
+                today.month,
+                today.day,
+              ),
+            );
+          } //if habit is not completed => remove the current date from the list
+          else {
+            habit.completedDays.removeWhere((date) =>
+                date.year == DateTime.now().year &&
+                date.month == DateTime.now().month &&
+                date.day == DateTime.now().day);
+          } //save the updated habits back to the db
+          await isar.habits.put(habit);
+        },
+      );
     }
     readHabits();
   }
