@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/cupertino.dart';
 import 'package:habbit_tracker/models/app_settings.dart';
 import 'package:habbit_tracker/models/habit.dart';
