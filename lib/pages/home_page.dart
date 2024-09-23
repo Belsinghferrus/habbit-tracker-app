@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habbit_tracker/components/my_drawer.dart';
 import 'package:habbit_tracker/components/my_habit_tile.dart';
+import 'package:habbit_tracker/components/my_heat_map.dart';
 import 'package:habbit_tracker/database/habit_database.dart';
 import 'package:habbit_tracker/models/habit.dart';
 import 'package:provider/provider.dart';
@@ -143,25 +144,58 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
-      drawer: const MyDrawer(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: createNewHabit,
-        elevation: 0,
-        backgroundColor: Theme.of(context).colorScheme.tertiary,
-        child: const Icon(
-          Icons.add,
+        backgroundColor: Theme.of(context).colorScheme.background,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: Theme.of(context).colorScheme.inversePrimary,
         ),
-      ),
-      body: _buildHabitList(),
-    );
+        drawer: const MyDrawer(),
+        floatingActionButton: FloatingActionButton(
+          onPressed: createNewHabit,
+          elevation: 0,
+          backgroundColor: Theme.of(context).colorScheme.tertiary,
+          child: const Icon(
+            Icons.add,
+          ),
+        ),
+        body: ListView(
+          children: [
+            // H E A T M A P
+            _buildHeatMap(),
+
+            // H A B I T L I S T
+            _buildHabitList(),
+          ],
+        ));
   }
 
+//H E A T M A P
+  Widget _buildHeatMap() {
+    //habit database
+    final habitDatabase = context.watch<HabitDatabase>();
+
+    //current habit
+    List<Habit> currentHabit = habitDatabase.currentHabits;
+
+    //return heatmap UI
+    return FutureBuilder(
+        future: habitDatabase.getFirstlaunchDate(),
+        builder: (context, snapshot) {
+          //once data is available -> build heatmap
+          if (snapshot.hasData) {
+            return MyHeatMap(
+              startDate: snapshot.data,
+              datasets: prepHeatMapDataset(currentHabit),
+            );
+          } else {
+            return Container();
+          }
+          //
+        });
+  }
+
+// H A B I T L I S T
   Widget _buildHabitList() {
     //habit db
     final habitDatabase = context.watch<HabitDatabase>();
@@ -172,6 +206,8 @@ class _HomePageState extends State<HomePage> {
     //return list of habit UI
     return ListView.builder(
         itemCount: currentHabit.length,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           //get each individual habit
           final habit = currentHabit[index];
